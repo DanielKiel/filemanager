@@ -19,6 +19,7 @@ class FilemanagerSetup extends Migration
             $table->string('path');
             $table->string('name');
             $table->string('extension')->default('jpg');
+            $table->boolean('published')->default(1);
             $table->json('data');
 
             $table->timestamps();

@@ -9,8 +9,19 @@
 use  Illuminate\Support\Facades\Storage;
 class PackageTest extends \Tests\TestCase
 {
+    use \Illuminate\Foundation\Testing\DatabaseTransactions;
+
+
     public function testUploadAPI()
     {
+        $user = \App\User::create([
+            'name' => 'admin',
+            'email' => 'admin@admin.de',
+            'password' => bcrypt('password')
+        ]);
+
+        $this->actingAs($user);
+
         Storage::fake('local');
 
         //we will have validation error here
@@ -44,5 +55,19 @@ class PackageTest extends \Tests\TestCase
         $img = getimagesizefromstring(base64_decode($response->getContent()));
 
         $this->assertEquals(10, $img[0]);
+
+        $this->assertEquals(1, \Dionyseos\Filemanager\Models\File::published()->count());
+
+        $this->assertEquals(0, \Dionyseos\Filemanager\Models\File::published(false)->count());
+
+        $response = $this->json('PUT','/service/filemanager/v1/' . $uploaded->id, [
+            'published' => false
+        ]);
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $this->assertEquals(0, \Dionyseos\Filemanager\Models\File::published()->count());
+
+        $this->assertEquals(1, \Dionyseos\Filemanager\Models\File::published(false)->count());
     }
 }

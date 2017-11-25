@@ -34,6 +34,11 @@ class FilemanagerController extends Controller
         return $this->api->upload($request->file($uploadParam), $directory);
     }
 
+    /**
+     * @param $fileId
+     * @param int $thumb
+     * @return mixed
+     */
     public function show( $fileId, $thumb = 1)
     {
         $file = File::find($fileId);
@@ -45,7 +50,28 @@ class FilemanagerController extends Controller
             return $this->api->getThumb($file);
 
         }
+    }
 
+    /**
+     * @param Request $request
+     * @param $fileId
+     * @return mixed
+     */
+    public function update(Request $request, $fileId)
+    {
+        $file = File::find($fileId);
+
+        if (! $file instanceof File) {
+            return response('something went wrong', 422);
+        }
+
+        $result = $file->update($request->all());
+
+        if ( (bool) $result === true ) {
+            return $file->fresh();
+        }
+
+        return response('something went wrong', 422);
     }
 
 }

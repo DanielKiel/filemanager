@@ -7,5 +7,8 @@
  */
 
 return [
-    'widen' => 180
+    'widen' => 180,
+    'middleware' => [
+        'auth' => 'auth'
+    ]
 ];
