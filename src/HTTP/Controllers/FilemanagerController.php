@@ -23,6 +23,11 @@ class FilemanagerController extends Controller
         $this->api = $api;
     }
 
+    public function list(Request $request)
+    {
+        return File::paginate(25);
+    }
+
     /**
      * @param Request $request
      * @param string $uploadParam
