@@ -30,14 +30,20 @@ class Filemanager implements FilemanagerAPI
             $name = $file->name;
         }
 
-        $extension = str_after($path, '.');
+        $fileObj = new \Illuminate\Http\File($file->getRealPath());
+
+        $extension = $file->clientExtension();
 
         return File::create([
             'path' => $path,
             'name' => $name,
             'extension' => $extension,
             'data' => [
-                //TODO we can find more out at a file - make a research
+                'mimeType' => $fileObj->getMimeType(),
+                'ctime' => $fileObj->getCTime(),
+                'hashName' => $fileObj->hashName(),
+                'atime' => $fileObj->getATime(),
+                'size' => $fileObj->getSize()
             ]
         ]);
     }

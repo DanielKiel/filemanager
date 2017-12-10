@@ -13,6 +13,9 @@ use App\Http\Controllers\Controller;
 use Dionyseos\Filemanager\API\Filemanager as FilemanagerAPI;
 use Dionyseos\Filemanager\Models\File;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Smalot\PdfParser\Parser;
 
 class FilemanagerController extends Controller
 {
@@ -25,7 +28,22 @@ class FilemanagerController extends Controller
 
     public function list(Request $request)
     {
-        return File::paginate(25);
+        $query = new File();
+
+        $orderBy = explode(' ',$request->input('orderBy', 'id DESC'));
+        $query = call_user_func_array([$query, 'orderBy'], $orderBy);
+
+        $status = $request->input('published');
+
+        if (! empty($status)) {
+            $statement = explode(' ', $status);
+            array_unshift($statement, 'published');
+            $query = call_user_func_array([$query, 'where'], $statement);
+        }
+
+
+        return $query
+            ->paginate($request->input('per_page', 25));
     }
 
     /**
@@ -55,6 +73,27 @@ class FilemanagerController extends Controller
             return $this->api->getThumb($file);
 
         }
+    }
+
+    public function preview( $fileId)
+    {
+        $file = File::find($fileId);
+
+        if ($file->extension === 'pdf') {
+            $parser = new Parser();
+
+            return $parser->parseContent(Storage::get($file->path))
+                ->getText();
+        }
+
+        if (property_exists($file->data, 'mimeType')) {
+            if (str_is('image*', $file->data->mimeType)) {
+                return '<img src="data:' . $file->data->mimeType . ';base64,' . base64_encode(Storage::get($file->path)) .'">';
+            }
+
+        }
+
+        return Storage::get($file->path);
     }
 
     /**

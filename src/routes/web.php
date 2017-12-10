@@ -21,4 +21,8 @@ Route::middleware(config('filemanager.middleware.auth', 'auth'))->prefix('/servi
 
 
 Route::get('/services/filemanager/v1/{fileId}/{thumb?}', FilemanagerController::class.'@show')
-    ->name('filemanager.get');
+    ->name('filemanager.get')
+    ->where(['id' => '[0-9]+']);
+
+Route::get('/services/filemanager/preview/v1/{fileId}/', FilemanagerController::class.'@preview')
+    ->name('filemanager.preview');
