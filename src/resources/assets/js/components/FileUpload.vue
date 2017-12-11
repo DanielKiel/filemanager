@@ -15,7 +15,7 @@
                   <md-file id="uploadInput" @change="filesChange($event.target.files)" multiple placeholder="Upload files" />
                 </md-field>
                 <md-list v-if="files.length > 0" class="md-double-line">
-                    <md-list-item v-for="file in files">
+                    <md-list-item v-for="(file, index) in files" :key="index">
                         <div class="md-list-text-container">
                             <span>{{file.name}}</span>
                             <md-progress-bar class="md-accent" md-mode="determinate" :md-value="progress[file.name]"></md-progress-bar>
@@ -61,6 +61,8 @@
                     //next request to get source
                     this.existingFiles.push(data)
 
+                    this.$emit('file:uploaded', data)
+                    //TODO remove dependency to Bus, cause Bus may not exists !!!
                     Bus.$emit('file-uploaded', data)
 
                 } ).catch( err => {
