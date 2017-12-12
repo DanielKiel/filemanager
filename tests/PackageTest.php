@@ -20,12 +20,12 @@ class PackageTest extends \Tests\TestCase
             'password' => bcrypt('password')
         ]);
 
-        $this->actingAs($user);
+        \Laravel\Passport\Passport::actingAs($user);
 
         Storage::fake('local');
 
         //we will have validation error here
-        $response = $this->json('POST', '/service/filemanager/v1/upload/local', [
+        $response = $this->json('POST', '/services/filemanager/v1/upload/local', [
             'upload' => \Illuminate\Http\UploadedFile::fake()->image('avatar.jpg'),
         ]);
 
@@ -40,7 +40,7 @@ class PackageTest extends \Tests\TestCase
         // Assert a file does not exist...
         Storage::disk()->assertMissing('missing.jpg');
 
-        $response = $this->get('/service/filemanager/v1/' . $uploaded->id);
+        $response = $this->get('/services/filemanager/v1/' . $uploaded->id);
 
         $this->assertEquals(200, $response->getStatusCode());
 
@@ -48,7 +48,7 @@ class PackageTest extends \Tests\TestCase
 
         $this->assertEquals(180, $img[0]);
 
-        $response = $this->get('/service/filemanager/v1/' . $uploaded->id . '/0');
+        $response = $this->get('/services/filemanager/v1/' . $uploaded->id . '/0');
 
         $this->assertEquals(200, $response->getStatusCode());
 
@@ -60,7 +60,7 @@ class PackageTest extends \Tests\TestCase
 
         $this->assertEquals(0, \Dionyseos\Filemanager\Models\File::published(false)->count());
 
-        $response = $this->json('PUT','/service/filemanager/v1/' . $uploaded->id, [
+        $response = $this->json('PUT','/services/filemanager/v1/' . $uploaded->id, [
             'published' => false
         ]);
 
