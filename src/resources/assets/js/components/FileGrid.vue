@@ -31,7 +31,7 @@
                 <md-table-cell md-label="Size" >{{ calcFilesize(item.data.size )}}</md-table-cell>
                 <md-table-cell md-label="Mimetype" >{{ item.data.mimeType }}</md-table-cell>
                 <md-table-cell md-label="Hochladen am" md-sort-by="created_at">{{ item.created_at }}</md-table-cell>
-                <md-table-cell md-label="Preview"> <md-button @click="showRequest(item.id)"><md-icon>info</md-icon></md-button> </md-table-cell>
+                <md-table-cell md-label="Preview"> <md-button @click="showPreview(item)"><md-icon>info</md-icon></md-button> </md-table-cell>
             </md-table-row>
         </md-table>
 
@@ -157,13 +157,13 @@
                 })
             },
 
-            showRequest(fileId) {
+            showPreview(file) {
                 this.loadingDialog = true
                 this.showDialog = true
 
                 axios({
                     method: 'GET',
-                    url: '/services/filemanager/preview/v1/' + fileId
+                    url: '/services/filemanager/preview/v1/' + file.id
                 }).then(response => {
                     this.request = response.data//window.atob(response.data)
                     this.loadingDialog = false

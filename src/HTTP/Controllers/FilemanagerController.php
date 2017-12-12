@@ -80,10 +80,21 @@ class FilemanagerController extends Controller
         $file = File::find($fileId);
 
         if ($file->extension === 'pdf') {
+
             $parser = new Parser();
 
-            return $parser->parseContent(Storage::get($file->path))
-                ->getText();
+            $pdf = $parser->parseContent(Storage::get($file->path));
+            // Retrieve all pages from the pdf file.
+            $pages  = $pdf->getPages();
+
+            $text = '<h3>Textversion:</h3>';
+            foreach ($pages as $key => $page) {
+                $site = $key + 1;
+                $text .=  '<br/><strong>Seite ' . $site. '</strong><br/>';
+                $text .= $page->getText() . '<br/>';
+            }
+
+            return $text;
         }
 
         if (property_exists($file->data, 'mimeType')) {
