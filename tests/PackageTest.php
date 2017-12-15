@@ -35,10 +35,10 @@ class PackageTest extends \Tests\TestCase
         $uploaded = json_decode($response->getContent());
 
         // Assert the file was stored...
-        Storage::disk()->assertExists($uploaded->path);
+        Storage::disk('local')->assertExists($uploaded->path);
 
         // Assert a file does not exist...
-        Storage::disk()->assertMissing('missing.jpg');
+        Storage::disk('local')->assertMissing('missing.jpg');
 
         $response = $this->get('/services/filemanager/v1/' . $uploaded->id);
 
@@ -69,5 +69,35 @@ class PackageTest extends \Tests\TestCase
         $this->assertEquals(0, \Dionyseos\Filemanager\Models\File::published()->count());
 
         $this->assertEquals(1, \Dionyseos\Filemanager\Models\File::published(false)->count());
+    }
+
+    public function testNestedDir()
+    {
+        $user = \App\User::create([
+            'name' => 'admin',
+            'email' => 'admin@admin.de',
+            'password' => bcrypt('password')
+        ]);
+
+        \Laravel\Passport\Passport::actingAs($user);
+
+        Storage::fake('local');
+
+        //we will have validation error here
+        $response = $this->json('POST', '/services/filemanager/v1/upload/', [
+            'upload' => \Illuminate\Http\UploadedFile::fake()->image('avatar.jpg'),
+            'directory' => 'uploads/nested-set/path'
+        ]);
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+
+        $uploaded = json_decode($response->getContent());
+
+        // Assert the file was stored...
+        Storage::disk('local')->assertExists($uploaded->path);
+
+        // Assert a file does not exist...
+        Storage::disk('local')->assertMissing('missing.jpg');
     }
 }

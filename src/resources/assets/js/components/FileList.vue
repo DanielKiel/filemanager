@@ -84,7 +84,10 @@
             fetchFiles(url) {
                 axios({
                     method: 'GET',
-                    url: url
+                    url: url,
+                    params: {
+                        published: 1
+                    }
                 }).then( response => {
                     this.search = ''
                     response.data.data.forEach( data => {

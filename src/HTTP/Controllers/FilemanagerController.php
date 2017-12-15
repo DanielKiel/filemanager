@@ -46,6 +46,12 @@ class FilemanagerController extends Controller
             $query = call_user_func_array([$query, 'where'], $statement);
         }
 
+        $dir = $request->input('dir');
+        if (! empty($dir)) {
+            $query = $query->where('dir', $dir);
+        }
+
+
 
         return $query
             ->paginate($request->input('per_page', 25));
@@ -57,8 +63,12 @@ class FilemanagerController extends Controller
      * @param string $directory
      * @return mixed
      */
-    public function upload(Request $request, string $uploadParam, string $directory)
+    public function upload(Request $request, string $uploadParam, string $directory = '')
     {
+        if (empty($directory)) {
+            $directory = $request->input('directory', 'uploads');
+        }
+
         return $this->api->upload($request->file($uploadParam), $directory);
     }
 

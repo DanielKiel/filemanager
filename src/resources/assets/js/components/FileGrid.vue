@@ -1,6 +1,6 @@
 <template>
     <div>
-        <request-loader v-if="loading" message="loading request logs"></request-loader>
+        <request-loader v-if="loading" message="loading files"></request-loader>
 
         <md-table v-if="! loading" @md-sorted="sort" v-model="data.data" md-sort="name" md-sort-order="asc" md-card md-fixed-header>
             <md-table-toolbar>
@@ -19,7 +19,7 @@
 
             <md-table-row slot="md-table-row" slot-scope="{ item }">
                 <md-table-cell md-label="Name" md-sort-by="name">{{ item.name }}</md-table-cell>
-                <md-table-cell md-label="Running">
+                <md-table-cell md-label="Published">
                     <md-button class="md-icon-button md-primary" v-if="item.published === true" @click="changePublished(item)">
                         <md-icon>visibility</md-icon>
                     </md-button>
@@ -53,7 +53,7 @@
         </md-dialog>
         <md-dialog :md-active.sync="showUpload">
             <md-dialog-title>FileUpload</md-dialog-title>
-            <dion-fileupload :api="upload_api" @file:uploaded="fileUploaded"></dion-fileupload>
+            <dion-fileupload :api="upload_api" @file:uploaded="fileUploaded" :path="path"></dion-fileupload>
         </md-dialog>
 
     </div>
@@ -70,7 +70,8 @@
     export default {
         props: [
             'api',
-            'upload_api'
+            'upload_api',
+            'path'
         ],
 
         data() {
@@ -80,7 +81,8 @@
                 showDialog: false,
                 showUpload: false,
                 filter: {
-                    published: ''
+                    published: '',
+                    dir: this.path
                 },
                 hasPrevLinks: false,
                 hasNextLinks: true,
@@ -93,6 +95,20 @@
 
         created() {
             this.fetchFiles()
+
+            if (FileBus !== undefined) {
+                FileBus.$on('path-changed', (obj) => {
+                    this.loading = true
+
+                    setTimeout( () => {
+                        this.filter['dir'] = obj.path
+                        this.fetchFiles()
+                    }, 1000)
+
+
+
+                })
+            }
         },
 
         methods: {

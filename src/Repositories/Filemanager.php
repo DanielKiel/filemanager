@@ -15,6 +15,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
+use Smalot\PdfParser\Parser;
 
 class Filemanager implements FilemanagerAPI
 {
@@ -23,9 +24,9 @@ class Filemanager implements FilemanagerAPI
      * @param string $directory
      * @return File
      */
-    public function upload($file, string $directory): File
+    public function upload($file, string $directory, string $disk = 'local'): File
     {
-        $path =  Storage::putFile( $directory, $file);
+        $path =  Storage::disk($disk)->putFile( $directory, $file);
 
         if ($file instanceof UploadedFile) {
             $name = $file->getClientOriginalName();
@@ -42,6 +43,8 @@ class Filemanager implements FilemanagerAPI
             'path' => $path,
             'name' => $name,
             'extension' => $extension,
+            'dir' => $directory,
+            'disk' => $disk,
             'data' => [
                 'mimeType' => $fileObj->getMimeType(),
                 'ctime' => $fileObj->getCTime(),
@@ -59,7 +62,7 @@ class Filemanager implements FilemanagerAPI
     public function getRaw(File  $file): string
     {
         return Cache::rememberForever('filemanager_raw_' . $file->id, function() use($file) {
-            return base64_encode(Storage::get($file->path));
+            return base64_encode(Storage::disk($file->disk)->get($file->path));
         });
     }
 
@@ -70,7 +73,7 @@ class Filemanager implements FilemanagerAPI
     public function getThumb(File $file): string
     {
         return Cache::rememberForever('filemanager_thumb_' . $file->id, function() use($file) {
-            return base64_encode(Image::make(Storage::get($file->path))
+            return base64_encode(Image::make(Storage::disk($file->disk)->get($file->path))
                 ->widen(config('filemanager.widen', 180))->stream());
         });
     }
@@ -85,7 +88,7 @@ class Filemanager implements FilemanagerAPI
 
             $parser = new Parser();
 
-            $pdf = $parser->parseContent(Storage::get($file->path));
+            $pdf = $parser->parseContent(Storage::disk($file->disk)->get($file->path));
             // Retrieve all pages from the pdf file.
             $pages  = $pdf->getPages();
 
@@ -101,12 +104,12 @@ class Filemanager implements FilemanagerAPI
 
         if (property_exists($file->data, 'mimeType')) {
             if (str_is('image*', $file->data->mimeType)) {
-                return '<img src="data:' . $file->data->mimeType . ';base64,' . base64_encode(Storage::get($file->path)) .'">';
+                return '<img src="data:' . $file->data->mimeType . ';base64,' . base64_encode(Storage::disk($file->disk)->get($file->path)) .'">';
             }
 
         }
 
-        return Storage::get($file->path);
+        return Storage::disk($file->disk)->get($file->path);
     }
 
 }

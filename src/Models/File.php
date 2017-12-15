@@ -17,7 +17,7 @@ class File extends Model
     protected $table = 'files';
 
     protected $fillable = [
-        'path', 'name', 'extension', 'data', 'published'
+        'path', 'name', 'extension', 'data', 'published', 'dir', 'disk'
     ];
 
     protected $casts = [

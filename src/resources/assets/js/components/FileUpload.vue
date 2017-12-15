@@ -31,14 +31,24 @@
     export default {
         props: [
             'el',
-            'api'
+            'api',
+            'path'
         ],
         data() {
             return {
                 existingFiles: [],
                 files: [],
+                dir: this.path,
                 formData: new FormData(),
                 progress: {}
+            }
+        },
+
+        created() {
+            if (FileBus !== undefined) {
+                FileBus.$on('path-changed', (obj) => {
+                    this.dir = obj.path
+                })
             }
         },
 
@@ -74,7 +84,7 @@
                 this.files = []
 
                 // handle file changes
-                if (!fileList.length) return;
+                if (!fileList.length) return
 
                 // append the files to FormData
                 Array
@@ -83,10 +93,15 @@
                     this.files.push(fileList[x])
                     this.formData = new FormData()
                     this.progress[fileList[x].name] = 10
-                    this.formData.append('upload', fileList[x], fileList[x].name);
+                    this.formData.append('upload', fileList[x], fileList[x].name)
+
+                    if (this.dir !== undefined) {
+                        this.formData.append('directory', this.dir)
+                    }
+
                      // save it
-                    this.save();
-                  });
+                    this.save()
+                  })
             }
         }
     }

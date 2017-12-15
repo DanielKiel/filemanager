@@ -29,3 +29,8 @@ Vue Component requires:
 
 - https://www.npmjs.com/package/filesize
 - https://vuematerial.io
+
+
+ChangeList:
+v3 can now make a nested directory where file is saved. Therefor a route have been changed - 
+you can now let directory being empty as query param but send directory as post request param.

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Dionyseos\Filemanager\HTTP\Controllers\FilemanagerController;
 
 Route::middleware(config('filemanager.middleware.auth', 'auth'))->prefix('/services/filemanager/v1/')->group(function() {
-    Route::post('{uploadParam}/{directory}', FilemanagerController::class.'@upload')
+    Route::post('{uploadParam}/{directory?}', FilemanagerController::class.'@upload')
         ->name('filemanager.upload');
 
     Route::put('{fileId}', FilemanagerController::class.'@update')
