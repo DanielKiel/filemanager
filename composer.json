@@ -11,7 +11,8 @@
     "php": ">=7.0",
     "illuminate/support": "5.*",
     "intervention/image": "^2.4",
-    "smalot/pdfparser": "^0.11.0"
+    "smalot/pdfparser": "^0.11.0",
+    "dionyseos/jsonmenu": "1.*"
   },
   "autoload": {
     "psr-4": {
@@ -26,5 +27,6 @@
     }
   },
   "prefer-stable": true,
-  "minimum-stability": "dev"
+  "minimum-stability": "dev",
+  "license": "MIT"
 }
