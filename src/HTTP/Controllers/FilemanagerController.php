@@ -48,7 +48,10 @@ class FilemanagerController extends Controller
 
         $dir = $request->input('dir');
         if (! empty($dir)) {
-            $query = $query->where('dir', $dir);
+            $query = $query->where(function($query) use($dir) {
+                $query->orWhere('dir', 'LIKE',  $dir . '%')
+                    ->orWhere('dir', $dir);
+            });
         }
 
 
